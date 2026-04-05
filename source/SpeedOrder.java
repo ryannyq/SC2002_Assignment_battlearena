@@ -10,7 +10,10 @@ public class SpeedOrder implements TurnOrder {
     @Override
     public List<Combatant> sort(List<Combatant> combatants) {
         // Create a new list containing all combatants from the input list
+        List<Combatant> sorted = new ArrayList<>(combatants);
         // Sort the list by speed in descending order (higher speed first)
+        sorted.sort(Comparator.comparingInt(Combatant::getSpeed).reversed();
         // Return the sorted list
+        return sorted;
     }
 }
