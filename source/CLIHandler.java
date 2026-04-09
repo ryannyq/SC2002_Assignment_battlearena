@@ -11,15 +11,19 @@ import java.util.Scanner;
  */
 public class CLIHandler {
     private Scanner scanner;
-    private Map<Combatant, String> enemyLabels; // Maps enemies to labels (A, B, C, etc.)
+    private Map < Combatant, String > enemyLabels; // Maps enemies to labels (A, B, C, etc.)
     private int nextEnemyLabel;
     
     public CLIHandler() {
         // Initialize scanner to read from System.in
         // Initialize enemyLabels as a new empty HashMap
         // Initialize nextEnemyLabel to 0
+        this.scanner = new Scanner(System.in);
+        this.enemyLabels = new HashMap<>();
+        this.nextEnemyLabel = 0;
+
     }
-    
+
     /**
      * Initializes enemy labels for display.
      */
@@ -30,6 +34,15 @@ public class CLIHandler {
         // Iterate through each enemy in the list
             // Map enemy to current label character (convert char to String)
             // Increment label character to next letter
+        enemyLabels.clear();
+        nextEnemyLabel = 0;
+        char label ='A';
+
+        for (Combatant enemy: enemies) {
+            enemyLabels.put(enemy,String.valueOf(label));
+            label++;
+        }
+
     }
     
     /**
@@ -41,6 +54,19 @@ public class CLIHandler {
             // Check if enemy is not already in the labels map
                 // Find next available label by incrementing label character while it's already used
                 // Map enemy to the found available label character
+
+        char label = 'A';
+
+        for (Combatant enemy: newEnemies) {
+            if (!enemyLabels.containsKey(enemy)){
+                // Find next avail label
+                while (enemyLabels.containsValue(String.valueOf(label))) {
+                    label++;
+                }
+
+                enemyLabels.put(enemy,String.valueOf(label));
+            }
+        }
     }
     
     /**
@@ -48,6 +74,7 @@ public class CLIHandler {
      */
     public String getEnemyLabel(Combatant enemy) {
         // Return the label for the enemy from the map, or enemy's name if not found
+        return enemyLabels.getOrDefault(enemy,enemy.getName());
     }
     
     /**
@@ -62,6 +89,24 @@ public class CLIHandler {
         // Display empty line
         // Display "Enemy Types:" section with Goblin and Wolf stats
         // Display empty line
+        System.out.println("____________________");
+        System.out.println("    Battle Arena    ");
+        System.out.println("____________________");
+        System.out.println();
+        System.out.println(" Available Players: ");
+        System.out.println(" 1. Warrior - High HP/DEF, Special: Shield Bash (stuns enemy) ");
+        System.out.println(" 2. Wizard - High ATK, Special: Arcane Blast (hits all enemies, +10 ATK per kill) ");
+        System.out.println();
+        System.out.println(" Difficulty Levels: ");
+        System.out.println(" 1. Easy ");
+        System.out.println(" 2. Medium ");
+        System.out.println(" 3. Hard ");
+        System.out.println();
+        System.out.println("Enemy Types:");
+        System.out.println(" Goblin - Low HP/DEF, fast");
+        System.out.println(" Wolf - Higher ATK/SPD, more aggressive");
+        System.out.println();
+
     }
     
     /**
@@ -71,11 +116,27 @@ public class CLIHandler {
         // Prompt user to select player (1-2)
         // Read integer input in range 1-2 using readInt method
         // Use switch statement on choice
-            // Case 1: return new Warrior instance
-            // Case 2: return new Wizard instance
-            // Default: return null
+        // Case 1: return new Warrior instance
+        // Case 2: return new Wizard instance
+        // Default: return null
+
+        System.out.println("Select A Player (1 or 2):");
+        System.out.println(" 1. Warrior ");
+        System.out.println(" 2. Wizard ");
+        int choice = scanner.nextInt();
+
+
+        switch (choice) {
+            case 1:
+                return new Warrior();
+            case 2:
+                return new Wizard();
+            default:
+                return null;
+
+        }
+
     }
-    
     /**
      * Prompts user to select a difficulty level.
      */
@@ -83,18 +144,37 @@ public class CLIHandler {
         // Prompt user to select difficulty (1-3)
         // Read integer input in range 1-3 using readInt method
         // Use switch statement on choice
-            // Case 1: return Difficulty.EASY
-            // Case 2: return Difficulty.MEDIUM
-            // Case 3: return Difficulty.HARD
-            // Default: return Difficulty.EASY
+        // Case 1: return Difficulty.EASY
+        // Case 2: return Difficulty.MEDIUM
+        // Case 3: return Difficulty.HARD
+        // Default: return Difficulty.EASY
+
+        System.out.println(" Select Difficulty (1-3):");
+        System.out.println(" 1. Easy");
+        System.out.println(" 2. Medium");
+        System.out.println(" 3. Hard");
+        int choice = scanner.nextInt();
+
+
+        switch (choice) {
+            case 1:
+                return Difficulty.EASY;
+            case 2:
+                return Difficulty.MEDIUM;
+            case 3:
+                return Difficulty.HARD;
+            default:
+                return Difficulty.EASY;
+        }
     }
-    
     /**
      * Displays round header.
      */
     public void displayRoundHeader(int round) {
         // Display empty line
         // Display formatted round header with round number
+                System.out.println();
+                System.out.println("Round " + round );
     }
     
     /**
@@ -105,6 +185,14 @@ public class CLIHandler {
         // Check if target HP after is less than or equal to 0
             // If eliminated, display formatted message with "X ELIMINATED" and damage calculation
         // Otherwise, display formatted message with HP before and after, and damage calculation
+
+        String damage_calc = attackerATK + "-" + targetDEF + "=" + damage;
+        if ( hpAfter <= 0) {
+            System.out.println(actor + "-" + actionName + "-" + target + ":" + damage_calc + "X Eliminated");
+        }
+        else {
+            System.out.println(actor + "-" + actionName + target + ":" + damage_calc + "|" + target + "HP:" + hpBefore + "vs"+ hpAfter);
+        }
     }
     
     /**
@@ -112,6 +200,8 @@ public class CLIHandler {
      */
     public void displayCooldownSet(int cooldownRounds) {
         // Display formatted message showing cooldown set to the given number of rounds
+
+        System.out.println("Cooldown set :" + cooldownRounds + "rounds");
     }
     
     /**
@@ -119,6 +209,8 @@ public class CLIHandler {
      */
     public void displayCooldownUnchanged(int cooldownRounds) {
         // Display formatted message showing cooldown unchanged with explanation about Power Stone
+
+        System.out.println("Cooldown unchanged (Power Stone used): " + cooldownRounds + "rounds left");
     }
     
     /**
@@ -127,6 +219,8 @@ public class CLIHandler {
     public void displayNullifiedBasicAttack(String actor, String target, String targetDisplay, int targetHP) {
         // Display formatted message like:
         // "Actor -> BasicAttack -> Target: 0 damage (Smoke Bomb active) | TargetDisplay HP: targetHP"
+        System.out.println(actor + "BasicAttack -> " + target
+                + ": 0 damage (Smoke Bomb active) | " + targetDisplay + " HP: " + targetHP);
     }
     
     /**
@@ -134,6 +228,7 @@ public class CLIHandler {
      */
     public void displayStatusEffect(String target, String effect, int duration) {
         // Display formatted message showing target is STUNNED with duration in turns
+        System.out.println(target + " is STUNNED for " + duration + " turns");
     }
     
     /**
@@ -141,6 +236,7 @@ public class CLIHandler {
      */
     public void displayStunExpires() {
         // Display formatted "Stun expires" message (used by GameManager, not printed directly there)
+        System.out.println("Stun expires");
     }
     
     /**
@@ -148,6 +244,7 @@ public class CLIHandler {
      */
     public void displaySmokeBombExpires() {
         // Display formatted "Smoke Bomb effect expires" message (used by GameManager, not printed directly there)
+        System.out.println("Smoke Bomb effect expires");
     }
     
     /**
@@ -158,6 +255,12 @@ public class CLIHandler {
             // If so, display formatted message showing combatant's turn was skipped due to stun
         // Otherwise, check if reason equals "ELIMINATED"
             // If so, display formatted message showing combatant's turn was skipped due to elimination
+
+        if (reason.equals("STUNNED")) {
+            System.out.println(combatant + "'s turn skipped (Stunned)");
+        } else if (reason.equals("ELIMINATED")) {
+            System.out.println(combatant + "'s turn skipped (Eliminated)");
+        }
     }
     
     /**
@@ -165,6 +268,7 @@ public class CLIHandler {
      */
     public void displayItemUsage(String actor, String itemName, String effect) {
         // Display formatted message showing actor used item with effect description
+        System.out.println(actor + ": Item : " + itemName + ": " + effect);
     }
     
     /**
@@ -210,7 +314,128 @@ public class CLIHandler {
         // Add formatted cooldown string to status parts
         
         // Join all status parts with " | " separator and display
-    }
+
+        System.out.print("End of Round " + round + ": ");
+        List<String> parts = new ArrayList<>();
+
+
+        // iterating through players
+        for (Combatant c : combatants) {
+            if (c instanceof Warrior || c instanceof Wizard) {
+                String status;
+
+                if (c.isAlive()) {
+                    status = c.getName() + " HP: " + c.getCurrentHP() + "/" + c.getMaxHP();
+                }
+
+                else {
+                    status = c.getName() + " HP: " + c.getCurrentHP();
+                }
+                parts.add(status);
+            }
+        }
+
+        // creation of enemy list
+        List<Combatant> enemyList = new ArrayList<>();
+
+
+        for (Combatant c : combatants) {
+            if (c instanceof Goblin || c instanceof Wolf) {
+                enemyList.add(c);
+            }
+
+        }
+        // sorting of enermy list
+        enemyList.sort((a, b) -> {
+            String aa = enemyLabels.getOrDefault(a, "");
+            String bb = enemyLabels.getOrDefault(b, "");
+            return aa.compareTo(bb);
+        });
+
+
+        for (Combatant e : enemyList) {
+            String type = e.getClass().getSimpleName();
+            String label = enemyLabels.getOrDefault(e, "");
+            String fullLabel = label.isEmpty() ? type : type + label;
+
+            String status;
+            if (!e.isAlive()) {
+                status = fullLabel + " HP: " + e.getCurrentHP();
+            }
+
+            else {
+                status = fullLabel + " HP: " + e.getCurrentHP() + "/" + e.getMaxHP();
+
+                if (e.hasStatusEffect("Stun") || e.hasStatusEffect("StunEffect")) {
+                    status = "[STUNNED]";
+                }
+            }
+            parts.add(status);
+
+            // Inventory
+
+            if (player instanceof Warrior) {
+
+                String potionText  = (potionCount  == 0) ? "Potion: consumed" : "Potion: "   + potionCount;
+                String smokeText   = (smokeBombCount == 0) ? "Smoke Bomb: consumed" : "Smoke Bomb: " + smokeBombCount;
+
+                parts.add(potionText);
+
+                parts.add(smokeText);
+
+                if (!hasItems && potionCount == 0 && smokeBombCount == 0) {
+                    parts.add("Item action no longer available");
+                }
+            }
+
+            else if (player instanceof Wizard) {
+
+                String stoneText  = (powerStoneCount == 0) ? "Power Stone: consumed" : "Power Stone: " + powerStoneCount;
+                String potionText = (potionCount    == 0) ? "Potion: consumed"      : "Potion: "      + potionCount;
+
+
+                parts.add(stoneText);
+                parts.add(potionText);
+
+
+                if (!hasItems && powerStoneCount == 0 && potionCount == 0) {
+                    parts.add("Item action no longer available");
+                }
+                if (player.getAttack() > 50) {
+                    parts.add("ATK: " + player.getAttack());
+                }
+            }
+
+            // Cooldown
+
+            String cooldownText;
+
+            if (cooldownRounds == 0) {
+                cooldownText = "Cooldown: 0 Round";
+            }
+
+            else if (cooldownRounds == 1) {
+                cooldownText = "Cooldown: 1 round";
+            }
+
+            else {
+                cooldownText = "Cooldown: " + cooldownRounds + " rounds";
+            }
+
+            parts.add(cooldownText);
+
+            System.out.println(String.join(" | ", parts));
+        }
+
+
+
+
+
+
+
+
+
+        }
     
     /**
      * Displays Arcane Blast summary across all enemies including kill-based ATK progression and cooldown.
@@ -223,6 +448,31 @@ public class CLIHandler {
         // If goblinSurvives is true, append "Goblin survives"
         // If cooldownRounds is not null, display cooldown set message
         // Otherwise, print newline only
+
+        System.out.print(actor + " -> Arcane Blast -> All Enemies: ");
+        System.out.print(String.join(", ", enemyResults));
+
+
+        if (kills > 0) {
+            int finalATK = initialATK + (kills * 10);
+            System.out.print("ATK: " + initialATK + "+" + (kills * 10) + "=" + finalATK);
+        }
+
+
+        if (goblinSurvives) {
+            System.out.print("Goblin survives");
+        }
+
+        if (cooldownRounds != null) {
+            System.out.println();
+            displayCooldownSet(cooldownRounds);
+        }
+        else {
+            System.out.println();
+        }
+
+
+
     }
     
     /**
@@ -230,6 +480,7 @@ public class CLIHandler {
      */
     public void displayPowerStoneTriggered(String actor, String skillName) {
         // Display formatted "Actor -> Item -> Power Stone used -> SkillName triggered" message
+        System.out.println(actor + " -> Item -> Power Stone used -> " + skillName + " triggered");
     }
     
     /**
@@ -240,6 +491,19 @@ public class CLIHandler {
         // Join and display enemy results
         // If kills > 0, display ATK progression (+10 per kill)
         // If allDefeated is true, append "All enemies defeated"
+
+        System.out.print("-> All Enemies (ATK: " + attackerATK + "): ");
+        System.out.print(String.join(", ", enemyResults));
+        if (kills > 0) {
+            int finalATK = attackerATK + (kills * 10);
+            System.out.print("ATK: " + attackerATK + "+" + (kills * 10) + "=" + finalATK);
+        }
+        if (allDefeated) {
+            System.out.print("All enemies defeated");
+        }
+        System.out.println();
+
+
     }
     
     /**
@@ -248,6 +512,8 @@ public class CLIHandler {
     public void displayPowerStoneConsumedAndCooldownUnchanged(int cooldownRounds) {
         // Display "Power Stone consumed" text
         // Then display cooldown unchanged message through existing cooldown format
+        System.out.print("Power Stone consumed ");
+        displayCooldownUnchanged(cooldownRounds);
     }
     
     /**
@@ -255,6 +521,7 @@ public class CLIHandler {
      */
     public void displayNewline() {
         // Print a newline (used to keep formatting logic inside UI layer)
+        System.out.println();
     }
     
     /**
@@ -270,6 +537,23 @@ public class CLIHandler {
         // Calculate max option (4 if hasItems, 3 if canUseSkill, 2 otherwise)
         // Prompt user for choice in range 1 to maxOption
         // Read and return integer input using readInt method
+
+        System.out.println("Select Action:");
+        System.out.println("1. Basic Attack");
+        System.out.println("2. Defend");
+
+
+        if (canUseSkill) {
+            System.out.println("3. Special Skill");
+        }
+
+        if (hasItems) {
+            System.out.println("4. Use Item");
+        }
+
+        int maxOption = hasItems ? 4 : (canUseSkill ? 3 : 2);
+        return readInt(1, maxOption);
+
     }
     
     /**
@@ -288,6 +572,29 @@ public class CLIHandler {
         // Prompt user for choice
         // Read integer input in range 1 to alive enemies size
         // Return the enemy at (choice - 1) index from alive enemies list
+
+        System.out.println("Select Target:");
+        List<Combatant> aliveEnemies = new ArrayList<>();
+
+        for (Combatant e : enemies) {
+            if (e.isAlive()) {
+                aliveEnemies.add(e);
+            }
+
+        }
+
+        for (int i = 0; i < aliveEnemies.size(); i++) {
+            Combatant e = aliveEnemies.get(i);
+            String label = enemyLabels.getOrDefault(e, "");
+            String type  = e.getClass().getSimpleName();
+
+            System.out.printf(" %d. %s%s  HP: %d/%d%n", i + 1, type, label, e.getCurrentHP(), e.getMaxHP());
+        }
+
+        int choice = readInt(1, aliveEnemies.size());
+        return aliveEnemies.get(choice - 1);
+
+
     }
     
     /**
@@ -301,6 +608,16 @@ public class CLIHandler {
         // Prompt user for choice
         // Read integer input in range 1 to available items size
         // Return (choice - 1) to convert to 0-based index
+
+        System.out.println("Select Item:");
+
+        for (int i = 0; i < availableItems.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + availableItems.get(i).getName());
+        }
+
+        int choice = readInt(1, availableItems.size());
+        return choice - 1;
+
     }
     
     /**
@@ -320,6 +637,28 @@ public class CLIHandler {
             // Format potion text (show "unused" if count > 0, otherwise "0")
             // Format ATK text (show final ATK if greater than 50, otherwise empty string)
             // Display formatted victory message with HP, rounds, remaining items, and ATK if applicable
+
+        System.out.println();
+        System.out.println("**Victory**");
+
+
+        if (player instanceof Warrior) {
+            String potionText = (potionCount > 0) ? potionCount + " unused" : "0";
+            String smokeBombText = (smokeBombCount > 0) ? smokeBombCount + " unused" : "0";
+            System.out.println("HP: " + remainingHP + "/" + maxHP + " : Rounds: " + roundsSurvived + " : Potion: " + potionText + " : Smoke Bomb: " + smokeBombText);
+
+        }
+
+        else if (player instanceof Wizard) {
+            String stoneText = (powerStoneCount > 0) ? powerStoneCount + " unused" : "0";
+
+            String potionText = (potionCount     > 0) ? potionCount     + " unused" : "0";
+
+            String atkText = (player.getAttack() > 50) ? "Final ATK: " + player.getAttack() : "";
+
+            System.out.println("HP: " + remainingHP + "/" + maxHP + ": Rounds: " + roundsSurvived + ": Power Stone: " + stoneText + ": Potion: " + potionText + atkText);
+        }
+
     }
     
     /**
@@ -329,6 +668,12 @@ public class CLIHandler {
         // Prompt user "Play again? (y/n): "
         // Read input line, trim whitespace, and convert to lowercase
         // Return true if input equals "y" or "yes", false otherwise
+
+        System.out.print("Play again? (y/n): ");
+        String input = scanner.nextLine().trim().toLowerCase();
+        return input.equals("y") || input.equals("yes");
+
+
     }
     
     /**
@@ -336,6 +681,7 @@ public class CLIHandler {
      */
     public void displayMessage(String message) {
         // Display the message string
+        System.out.println(message);
     }
     
     /**
@@ -351,12 +697,33 @@ public class CLIHandler {
                     // Otherwise, display error message prompting for valid range
             // Catch NumberFormatException:
                 // Display error message prompting for valid range
+
+        while (true) {
+
+            try {
+                String input = scanner.nextLine().trim();
+                int value = Integer.parseInt(input);
+                if (value >= min && value <= max) {
+                    return value;
+                }
+                System.out.println("Please enter a number between " + min + " and " + max);
+
+            }
+
+            catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a number between " + min + " and " + max + ".");
+            }
+
+        }
+
     }
+
     
     /**
      * Closes the scanner.
      */
     public void close() {
         // Close the scanner
+        scanner.close();
     }
 }

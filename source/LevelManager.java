@@ -13,6 +13,10 @@ public class LevelManager {
     public LevelManager() {
         // Initialize the difficulty configurations map
         // Call method to set up all difficulty level configurations
+
+        difficultyConfigs = new HashMap<>();
+
+        initializeConfigurations();
     }
     
     /**
@@ -36,6 +40,41 @@ public class LevelManager {
         // Create a list for initial wave and add 2 GOBLIN enemy types
         // Create a list for backup wave and add 1 GOBLIN and 2 WOLF enemy types
         // Create an EnemySpawnConfig with these lists and store it in the map with HARD key
+
+
+        List<EnemySpawnConfig.EnemyType> easy_diff = new ArrayList<>();
+        easy_diff.add(EnemySpawnConfig.EnemyType.GOBLIN);
+        easy_diff.add(EnemySpawnConfig.EnemyType.GOBLIN);
+        easy_diff.add(EnemySpawnConfig.EnemyType.GOBLIN);
+
+        List<EnemySpawnConfig.EnemyType> easy_backup = new ArrayList<>();
+
+        difficultyConfigs.put(Difficulty.EASY, new EnemySpawnConfig(easy_diff, easy_backup));
+
+        List<EnemySpawnConfig.EnemyType> medium_diff = new ArrayList<>();
+        medium_diff.add(EnemySpawnConfig.EnemyType.GOBLIN);
+        medium_diff.add(EnemySpawnConfig.EnemyType.WOLF);
+
+        List<EnemySpawnConfig.EnemyType> medium_backup = new ArrayList<>();
+        medium_backup.add(EnemySpawnConfig.EnemyType.WOLF);
+        medium_backup.add(EnemySpawnConfig.EnemyType.WOLF);
+
+        difficultyConfigs.put(Difficulty.MEDIUM, new EnemySpawnConfig(medium_diff, medium_backup));
+
+        List<EnemySpawnConfig.EnemyType> hard_diff = new ArrayList<>();
+        hard_diff.add(EnemySpawnConfig.EnemyType.GOBLIN);
+        hard_diff.add(EnemySpawnConfig.EnemyType.GOBLIN);
+
+        List<EnemySpawnConfig.EnemyType> hard_Backup = new ArrayList<>();
+        hard_Backup.add(EnemySpawnConfig.EnemyType.GOBLIN);
+        hard_Backup.add(EnemySpawnConfig.EnemyType.WOLF);
+        hard_Backup.add(EnemySpawnConfig.EnemyType.WOLF);
+
+        difficultyConfigs.put(Difficulty.HARD, new EnemySpawnConfig(hard_diff, hard_Backup));
+
+
+
+
     }
     
     /**
@@ -46,6 +85,7 @@ public class LevelManager {
      */
     public EnemySpawnConfig getSpawnConfig(Difficulty difficulty) {
         // Retrieve and return the spawn configuration for the given difficulty level from the map
+        return difficultyConfigs.get(difficulty);
     }
     
     /**
@@ -61,6 +101,23 @@ public class LevelManager {
             // For GOBLIN type, create a new Goblin instance and add to list
             // For WOLF type, create a new Wolf instance and add to list
         // Return the list of created enemies
+
+        List<Combatant> enemies = new ArrayList<>();
+
+        for (EnemySpawnConfig.EnemyType type : enemyTypes) {
+
+            switch (type) {
+                case GOBLIN:
+                    enemies.add(new Goblin());
+                    break;
+
+                case WOLF:
+                    enemies.add(new Wolf());
+                    break;
+            }
+        }
+
+      return enemies;
     }
     
     /**
@@ -73,6 +130,17 @@ public class LevelManager {
         // Get the spawn configuration for the given difficulty level
         // If configuration is null, return an empty list
         // Otherwise, create enemies from the initial wave enemy types and return the list
+
+        EnemySpawnConfig config = getSpawnConfig(difficulty);
+
+        if (config == null) {
+            return new ArrayList<>();
+        }
+
+        return createEnemies(config.getInitialWave());
+
+
+
     }
     
     /**
@@ -85,5 +153,14 @@ public class LevelManager {
         // Get the spawn configuration for the given difficulty level
         // If configuration is null, return an empty list
         // Otherwise, create enemies from the backup wave enemy types and return the list
+        EnemySpawnConfig config = getSpawnConfig(difficulty);
+
+
+        if (config == null) {
+            return new ArrayList<>();
+        }
+
+        return createEnemies(config.getBackupWave());
+
     }
 }
