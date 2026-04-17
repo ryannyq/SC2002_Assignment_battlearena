@@ -229,9 +229,10 @@ public class CLIHandler {
             System.out.println(actor + " -> " + actionName + " -> " + target + ": HP: " + hpBefore + " -> " + hpAfter + " X ELIMINATED (dmg: " + damage_calc + ")");
         }
         else {
-            System.out.println(actor + " - " + actionName + " - " + target + ": " + damage_calc + " | " + target + " HP: " + hpBefore + " vs " + hpAfter);
+            System.out.println(actor + " -> " + actionName + " -> " + target
+                    + ": HP: " + hpBefore + " -> " + hpAfter
+                    + " (dmg: " + damage_calc + ")");
         }
-        System.out.println();
         System.out.println();
     }
     
@@ -241,7 +242,7 @@ public class CLIHandler {
     public void displayCooldownSet(int cooldownRounds) {
         // Display formatted message showing cooldown set to the given number of rounds
 
-        System.out.println("Cooldown set :" + cooldownRounds + "rounds");
+        System.out.println("Cooldown set to " + cooldownRounds);
     }
     
     /**
@@ -250,7 +251,8 @@ public class CLIHandler {
     public void displayCooldownUnchanged(int cooldownRounds) {
         // Display formatted message showing cooldown unchanged with explanation about Power Stone
 
-        System.out.println("Cooldown unchanged (Power Stone used): " + cooldownRounds + "rounds left");
+        System.out.println("Cooldown unchanged -> " + cooldownRounds
+                + " (Power Stone does not affect cooldown)");
     }
     
     /**
@@ -259,7 +261,7 @@ public class CLIHandler {
     public void displayNullifiedBasicAttack(String actor, String target, String targetDisplay, int targetHP) {
         // Display formatted message like:
         // "Actor -> BasicAttack -> Target: 0 damage (Smoke Bomb active) | TargetDisplay HP: targetHP"
-        System.out.println(actor + "BasicAttack -> " + target
+        System.out.println(actor + " -> BasicAttack -> " + target
                 + ": 0 damage (Smoke Bomb active) | " + targetDisplay + " HP: " + targetHP);
     }
     
@@ -276,7 +278,7 @@ public class CLIHandler {
      */
     public void displayStunExpires() {
         // Display formatted "Stun expires" message (used by GameManager, not printed directly there)
-        System.out.println("Stun expires");
+        System.out.println("| Stun expires");
     }
     
     /**
@@ -284,7 +286,7 @@ public class CLIHandler {
      */
     public void displaySmokeBombExpires() {
         // Display formatted "Smoke Bomb effect expires" message (used by GameManager, not printed directly there)
-        System.out.println("Smoke Bomb effect expires");
+        System.out.println("| Smoke Bomb effect expires");
     }
     
     /**
@@ -297,9 +299,9 @@ public class CLIHandler {
             // If so, display formatted message showing combatant's turn was skipped due to elimination
 
         if (reason.equals("STUNNED")) {
-            System.out.println(combatant + "'s turn skipped (Stunned)");
+            System.out.println(combatant + " -> STUNNED: Turn skipped");
         } else if (reason.equals("ELIMINATED")) {
-            System.out.println(combatant + "'s turn skipped (Eliminated)");
+            System.out.println(combatant + " -> ELIMINATED: Skipped");
         }
     }
     
@@ -403,7 +405,7 @@ public class CLIHandler {
                 status = fullLabel + " HP: " + e.getCurrentHP() + "/" + e.getMaxHP();
 
                 if (e.hasStatusEffect("Stun") || e.hasStatusEffect("StunEffect")) {
-                    status = "[STUNNED]";
+                    status += "[STUNNED]";
                 }
             }
             parts.add(status);
@@ -411,8 +413,8 @@ public class CLIHandler {
 
         if (player instanceof Warrior) {
 
-            String potionText  = (potionCount  == 0) ? "Potion: consumed" : "Potion: "   + potionCount;
-            String smokeText   = (smokeBombCount == 0) ? "Smoke Bomb: consumed" : "Smoke Bomb: " + smokeBombCount;
+            String potionText  = (potionCount  == 0) ? "Potion: 0 <- consumed" : "Potion: "   + potionCount;
+            String smokeText   = (smokeBombCount == 0) ? "Smoke Bomb <- consumed" : "Smoke Bomb: " + smokeBombCount;
 
             parts.add(potionText);
 
@@ -437,14 +439,14 @@ public class CLIHandler {
                 parts.add("Item action no longer available");
             }
             if (player.getAttack() > 50) {
-                parts.add("ATK: " + player.getAttack());
+                parts.add("Wizard ATK: " + player.getAttack());
             }
         }
 
         String cooldownText;
 
         if (cooldownRounds == 0) {
-            cooldownText = "Cooldown: 0 Round";
+            cooldownText = "Cooldown: 0 rounds";
         }
 
         else if (cooldownRounds == 1) {
@@ -486,12 +488,13 @@ public class CLIHandler {
 
         if (kills > 0) {
             int finalATK = initialATK + (kills * 10);
-            System.out.print("ATK: " + initialATK + "+" + (kills * 10) + "=" + finalATK);
+            System.out.print(" | ATK: " + initialATK + " -> " + finalATK
+                    + " (+" + (kills * 10) + " per Arcane Blast kill)");
         }
 
 
         if (goblinSurvives) {
-            System.out.print("Goblin survives");
+            System.out.print("| Goblin survives");
         }
 
         if (cooldownRounds != null) {
@@ -524,13 +527,13 @@ public class CLIHandler {
         // If allDefeated is true, append "All enemies defeated"
 
         System.out.print("-> All Enemies (ATK: " + attackerATK + "): ");
-        System.out.print(String.join(", ", enemyResults));
+        System.out.print(String.join("|", enemyResults));
         if (kills > 0) {
             int finalATK = attackerATK + (kills * 10);
             System.out.print("ATK: " + attackerATK + "+" + (kills * 10) + "=" + finalATK);
         }
         if (allDefeated) {
-            System.out.print("All enemies defeated");
+            System.out.print("| All enemies defeated");
         }
         System.out.println();
 
@@ -677,24 +680,34 @@ public class CLIHandler {
             // Display formatted victory message with HP, rounds, remaining items, and ATK if applicable
 
         System.out.println();
-        System.out.println("**Victory**");
+        System.out.println("Victory");
 
 
         if (player instanceof Warrior) {
-            String potionText = (potionCount > 0) ? potionCount + " unused" : "0";
-            String smokeBombText = (smokeBombCount > 0) ? smokeBombCount + " unused" : "0";
-            System.out.println("HP: " + remainingHP + "/" + maxHP + " : Rounds: " + roundsSurvived + " : Potion: " + potionText + " : Smoke Bomb: " + smokeBombText);
+            String potionText = (potionCount > 0) ? potionCount + " <- unused" : "0";
+            String smokeBombText = (smokeBombCount > 0) ? smokeBombCount + " <- unused" : "0";
+
+            System.out.println("Result: Player Victory "
+                    + "Remaining HP: " + remainingHP + " / " + maxHP
+                    + " | Total Rounds: " + roundsSurvived
+                    + " | Remaining Potion: " + potionText
+                    + " | Remaining Smoke Bomb: " + smokeBombText);
 
         }
 
         else if (player instanceof Wizard) {
-            String stoneText = (powerStoneCount > 0) ? powerStoneCount + " unused" : "0";
+            String stoneText = (powerStoneCount > 0) ? powerStoneCount + " <- unused" : "0";
 
-            String potionText = (potionCount     > 0) ? potionCount     + " unused" : "0";
+            String potionText = (potionCount     > 0) ? potionCount     + " <- unused" : "0";
 
-            String atkText = (player.getAttack() > 50) ? "Final ATK: " + player.getAttack() : "";
+            String atkText = (player.getAttack() > 50) ? "| Final Wizard ATK: " + player.getAttack() : "";
 
-            System.out.println("HP: " + remainingHP + "/" + maxHP + ": Rounds: " + roundsSurvived + ": Power Stone: " + stoneText + ": Potion: " + potionText + atkText);
+            System.out.println("Result: Player Victory "
+                    + "Remaining HP: " + remainingHP + " / " + maxHP
+                    + " | Total Rounds: " + roundsSurvived
+                    + " | Remaining Power Stone: " + stoneText
+                    + " | Remaining Potion: " + potionText
+                    + atkText);
         }
 
     }
