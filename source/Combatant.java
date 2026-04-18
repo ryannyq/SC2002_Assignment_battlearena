@@ -11,33 +11,32 @@ public abstract class Combatant {
     protected List<StatusEffect> activeEffects;
 
     public Combatant(String name, int maxHP, int attack, int defense, int speed) {
-        this.name = name;
-        this.maxHP = maxHP;
+        this.name     = name;
+        this.maxHP    = maxHP;
         this.currentHP = maxHP;
-        this.attack = attack;
-        this.defense = defense;
-        this.speed = speed;
+        this.attack   = attack;
+        this.defense  = defense;
+        this.speed    = speed;
         this.activeEffects = new ArrayList<>();
     }
 
-    public int getMaxHP() { return maxHP; }
-    public int getCurrentHP() { return currentHP; }
-    public int getAttack() { return attack; }
+    public int getMaxHP()    { return maxHP; }
+    public int getCurrentHP(){ return currentHP; }
+    public int getAttack()   { return attack; }
+    public int getSpeed()    { return speed; }
+    public String getName()  { return name; }
 
-    protected void setAttack(int attack) {
-        this.attack = attack;
-    }
-    public int getSpeed() { return speed; }
-    public String getName() { return name; }
-    
+    protected void setAttack(int attack) { this.attack = attack; }
+
+    // DefenseBoost doesn't modify the base field,it adds on top every time this is called
     public int getDefense() {
-        int totalDefense = this.defense;
+        int total = this.defense;
         for (StatusEffect effect : activeEffects) {
             if (effect instanceof DefenseBoost) {
-                totalDefense += ((DefenseBoost) effect).getBoostAmount();
+                total += ((DefenseBoost) effect).getBoostAmount();
             }
         }
-        return totalDefense;
+        return total;
     }
 
     public List<StatusEffect> getActiveEffects() {
@@ -45,15 +44,16 @@ public abstract class Combatant {
     }
 
     protected void setCurrentHP(int hp) {
+        // clamp — HP can't go negative or over max
         this.currentHP = Math.max(0, Math.min(hp, maxHP));
     }
 
     public void takeDamage(int damage) {
-        if (hasStatusEffect("DamageZeroEffect") || hasStatusEffect("SmokeBombInvulnerability")) {
+
+        if (hasStatusEffect("DamageZeroEffect")) {
             damage = 0;
         }
-        int effectiveDamage = Math.max(0, damage - getDefense()); 
-        setCurrentHP(this.currentHP - effectiveDamage);
+        setCurrentHP(this.currentHP - Math.max(0, damage));
     }
 
     public void heal(int amount) {
@@ -68,7 +68,7 @@ public abstract class Combatant {
         if (effect != null && !activeEffects.contains(effect)) {
             activeEffects.add(effect);
             effect.apply(this);
-            System.out.println(name + " is now affected by " + effect.getName() + "!");
+
         }
     }
 
@@ -85,14 +85,12 @@ public abstract class Combatant {
     }
 
     public void updateStatusEffects() {
-        List<StatusEffect> expiredEffects = new ArrayList<>();
+        List<StatusEffect> toRemove = new ArrayList<>();
         for (StatusEffect effect : activeEffects) {
             effect.decrementDuration();
-            if (effect.isExpired()) {
-                expiredEffects.add(effect);
-            }
+            if (effect.isExpired()) toRemove.add(effect);
         }
-        for (StatusEffect expired : expiredEffects) {
+        for (StatusEffect expired : toRemove) {
             removeStatusEffect(expired);
         }
     }
@@ -100,6 +98,7 @@ public abstract class Combatant {
     public abstract Action getAction(List<Combatant> availableTargets);
 
     public boolean canAct() {
+        // stun check matches StunEffect.getName() which returns "Stun"
         return isAlive() && !hasStatusEffect("Stun");
     }
 }
